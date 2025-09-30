@@ -16,17 +16,19 @@ type Section = {
   events: EventItem[];
 };
 
+
 function Card({ event }: { event: EventItem }) {
   const title = event.title ?? "Untitled Event";
   const description = event.description ?? "No description available.";
   const imageUrl = event.image ?? "/globe.svg";
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-4 shadow-sm hover:shadow-md transition-shadow bg-white dark:bg-gray-900">
-      <div className="h-28 w-full rounded-md bg-gray-100 dark:bg-gray-800 mb-3 overflow-hidden flex items-center justify-center">
+    <div className="rounded-xl border border-sky-900/30 p-4 shadow-lg shadow-black/40 hover:shadow-black/60 transition-shadow bg-gradient-to-b from-black via-sky-950/30 to-black hover:border-sky-700/40">
+      <div className="h-36 w-full rounded-lg bg-black mb-3 overflow-hidden relative ring-1 ring-sky-900/30">
         
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-sky-900/10 to-transparent" />
       </div>
-      <h3 className="font-medium text-gray-900 dark:text-gray-100">{title}</h3>
-      <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{description}</p>
+      <h3 className="font-semibold text-sky-100 tracking-wide">{title}</h3>
+      <p className="text-xs text-sky-200/90 line-clamp-2 mt-1">{description}</p>
     </div>
   );
 }
@@ -35,6 +37,7 @@ export default function HomePage() {
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSection, setSelectedSection] = useState<Section[]>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -63,7 +66,10 @@ export default function HomePage() {
               }))
             : [],
         }));
-        if (isMounted) setSections(shaped);
+        if (isMounted){
+          setSections(shaped);
+          setSelectedSection([shaped[0]]);
+        }
       } catch (err: any) {
         if (isMounted) setError(err?.message ?? "Failed to load events");
       } finally {
@@ -75,44 +81,53 @@ export default function HomePage() {
       isMounted = false;
     };
   }, []);
+
+  const handleSectionClick = (name: string) => {
+    setSelectedSection(sections.filter((s) => s.name === name));
+    console.log(selectedSection);
+  };
+
   return (
-    <main className="min-h-screen grid grid-rows-[56px_1fr] grid-cols-1 lg:grid-cols-[240px_1fr]">
-      <aside className="hidden lg:block row-span-2 bg-gray-50 dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 p-4">
-        <h2 className="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-200">Sections</h2>
-        <nav className="space-y-1">
+    <main className="min-h-screen grid grid-rows-[64px_1fr] grid-cols-1 lg:grid-cols-[260px_1fr] bg-gradient-to-b from-black via-sky-950/20 to-black text-gray-100">
+      <aside className="hidden lg:block row-span-2 bg-black/50 border-r border-sky-900/30 p-6">
+        <h2 className="text-xs uppercase tracking-[0.2em] mb-4 bg-gradient-to-r from-sky-400 to-sky-600 bg-clip-text text-transparent">Browse Sections</h2>
+        <nav className="space-y-2">
           {sections.map((s) => (
-            <button key={s.name} className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200">
+            <button key={s.name} onClick={() => handleSectionClick(s.name)} className="w-full text-left px-3 py-2 rounded-md text-sm bg-sky-600/20 hover:bg-sky-600/30 border border-sky-800/40 text-sky-100 transition-colors">
               {s.name}
             </button>
           ))}
         </nav>
       </aside>
 
-      <header className="col-start-1 lg:col-start-2 h-14 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3 px-4 bg-white/70 dark:bg-gray-950/70 backdrop-blur">
-        <div className="flex items-center gap-2 flex-1">
+      <header className="col-start-1 lg:col-start-2 h-16 border-b border-sky-900/30 flex items-center gap-3 px-6 bg-black/50 supports-[backdrop-filter]:backdrop-blur">
+        <div className="flex items-center gap-3 flex-1">
           <input
             type="search"
             placeholder="Search events..."
-            className="w-full md:w-96 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full md:w-96 rounded-md border border-sky-900/40 bg-black/60 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500 text-sky-100 placeholder:text-sky-300/60"
           />
         </div>
-        <Link href="/" className="text-sm font-semibold">Eventopia</Link>
+        <Link href="/" className="text-lg font-extrabold bg-gradient-to-r from-sky-300 via-sky-400 to-sky-600 bg-clip-text text-transparent tracking-wide">Eventopia</Link>
       </header>
 
-      <section className="col-start-1 lg:col-start-2 p-4">
+      <section className="col-start-1 lg:col-start-2 p-6">
         {loading ? (
-          <div className="text-sm text-gray-600 dark:text-gray-300">Loading events…</div>
+          <div className="text-sm text-sky-300/80">Loading events…</div>
         ) : error ? (
-          <div className="text-sm text-red-600">{error}</div>
+          <div className="text-sm text-red-400">{error}</div>
         ) : sections.length === 0 ? (
-          <div className="text-sm text-gray-600 dark:text-gray-300">No events found.</div>
+          <div className="text-sm text-sky-200/80">No events found.</div>
         ) : (
-          <div className="space-y-8">
-            {sections.map((section) => (
+          <div className="space-y-10">
+            {selectedSection.map((section) => (
               <div key={section.name}>
-                <h3 className="text-base font-semibold mb-3 text-gray-800 dark:text-gray-100">{section.name}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {section.events.map((evt) => (
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-5 w-1 rounded-full bg-gradient-to-b from-sky-400 to-sky-600" />
+                  <h3 className="text-base font-semibold text-sky-100 tracking-wide">{section.name}</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  {section.events.map((evt: EventItem) => (
                     <Card key={evt.id} event={evt} />
                   ))}
                 </div>
